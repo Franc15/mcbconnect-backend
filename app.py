@@ -58,7 +58,7 @@ def auth():
 def get_customer(nic):
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM customers WHERE nic = '%s'" % nic)
+    cur.execute("SELECT * FROM customers WHERE customer_id = '%s'" % nic)
     rows = cur.fetchone()
     if rows is None:
         return jsonify({
