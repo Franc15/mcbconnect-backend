@@ -4,13 +4,9 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 import requests
-from api.service import get_customer_info
+from api.service import get_customer_info, get_customer_transactions, get
 
 load_dotenv()
-
-headers = {
-    'Authorization': 'Bearer ' + os.environ.get('MCB_API_TOKEN'),
-}
 
 app = Flask(__name__)
 
@@ -38,7 +34,6 @@ def get_test(test):
     return jsonify({'message': 'Hello world from MCB Connect! ' + test})
 
 
-
 # search customer by nic
 @app.route('/api/v1/customers/<string:nic>')
 def get_api(nic):
@@ -59,11 +54,18 @@ def get_api(nic):
     user_dict = dict()
     user_dict['Customer'] = resp['Customer']
 
-    resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
-    user_dict['Account'] = resp2.json()[0]
+    # Get user account
+    user_dict['Account'] = get_customer_transactions(mcb_customer_id)
 
-    resp3 = requests.get(os.environ.get('MCB_API_URL') + 'accounts/' + user_dict['Account']['AccountNumber'] + '/transactions', headers=headers)
-    user_dict['Transaction'] = resp3.json()
+    # Get user transactions
+    user_dict['Transaction'] = get_customer_transactions(mcb_customer_id)
+
+    # resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
+    # user_dict['Account'] = resp2.json()[0]
+
+    # resp3 = requests.get(os.environ.get('MCB_API_URL') + 'accounts/' + user_dict['Account']['AccountNumber'] + '/transactions', headers=headers)
+    # user_dict['Transaction'] = resp3.json()
+
     return jsonify(user_dict)
 
 # post endpoint
