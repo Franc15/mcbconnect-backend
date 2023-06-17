@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import requests
 from api.service import get_customer_info, get_customer_transactions, get_customer_account
+from flask_cors import CORS
 from api.utils import connect_to_db
 from api.auth import login_user
 import json
@@ -11,6 +12,7 @@ import json
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/api/v1')
 def get_root():
