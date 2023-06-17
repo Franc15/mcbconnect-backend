@@ -57,25 +57,13 @@ def get_api(nic):
 
     # retreieve customer id from the response
     user_dict = dict()
-    user_dict['CustomerId'] = resp.json()['Customer']['CustomerId']
-    user_dict['CustomerStatus'] = resp.json()['Customer']['CustomerStatus']
-    user_dict['Title'] = resp.json()['Customer']['Title']
-    user_dict['FirstName'] = resp.json()['Customer']['FirstName']
-    user_dict['LastName'] = resp.json()['Customer']['LastName']
-    user_dict['DateOfBirth'] = resp.json()['Customer']['DateOfBirth']
-    user_dict['preferredLanguage'] = resp.json()['Customer']['preferredLanguage']
-    user_dict['Gender'] = resp.json['Customer']['Gender']
-    user_dict['PhoneNumber'] = resp.json()['Customer']['PhoneNumber']
-    user_dict['StreetName'] = resp.json()['Customer']['StreetName']
-    user_dict['City'] = resp.json()['Customer']['City']
-    user_dict['Country'] = resp.json()['Customer']['Country']
-    user_dict['PostalCode'] = resp.json()['Customer']['PostalCode']
-    user_dict['JobTitle'] = resp.json()['Customer']['JobTitle']
-    user_dict['Salary'] = resp.json()['Customer']['Salary']
-    user_dict['EmployerName'] = resp.json()['Customer']['EmployerName']
+    user_dict['Customer'] = resp.json()['Customer']
 
-    resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['CustomerId'] + '/accounts', headers=headers)
-    user_dict['Accounts'] = resp2.json()
+    resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
+    user_dict['Account'] = resp2.json()[0]
+
+    resp3 = requests.get(os.environ.get('MCB_API_URL') + 'accounts/' + user_dict['Account']['AccountNumber'] + '/transactions', headers=headers)
+    user_dict['Transaction'] = resp3.json()
     return jsonify(user_dict)
 
 # post endpoint
