@@ -4,6 +4,7 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 import requests
+from api.service import get_customer_info
 
 load_dotenv()
 
@@ -52,12 +53,11 @@ def get_api(nic):
     else:
         mcb_customer_id = row[1]
     
-    url = os.environ.get('MCB_API_URL') + 'customers/' + mcb_customer_id 
-    resp = requests.get(url, headers=headers)
+    resp = get_customer_info(mcb_customer_id)
 
     # retreieve customer id from the response
     user_dict = dict()
-    user_dict['Customer'] = resp.json()['Customer']
+    user_dict['Customer'] = resp['Customer']
 
     resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
     user_dict['Account'] = resp2.json()[0]
