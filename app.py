@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 import os
 import requests
 from api.service import get_customer_info, get_customer_transactions, get_customer_account
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 def get_db():
     conn = psycopg2.connect(host="localhost", database="mcbconnect-db", user="postgres", password="franc123")
