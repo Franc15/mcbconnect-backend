@@ -1,18 +1,16 @@
 from flask import Flask, request, jsonify
 from urllib.request import urlopen
-import psycopg2
 from dotenv import load_dotenv
 import os
 import requests
 from api.service import get_customer_info, get_customer_transactions, get_customer_account
+from api.utils import connect_to_db
+from api.auth import login_user
+import json
 
 load_dotenv()
 
 app = Flask(__name__)
-
-def get_db():
-    conn = psycopg2.connect(host="localhost", database="mcbconnect-db", user="postgres", password="franc123")
-    return conn
 
 @app.route('/api/v1')
 def get_root():
@@ -20,26 +18,63 @@ def get_root():
 
 @app.route('/api/v1/customers')
 def get_customers():
-    conn = get_db()
+    conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM customers")
     rows = cur.fetchall()
     return jsonify(rows)
 
-@app.route('/api/v1/<test>')
-def get_test(test):
-    test = request.view_args['test']
-    request = requests.get('http://localhost:5000/api/v1/customers', )
-    print(request.json())
-    return jsonify({'message': 'Hello world from MCB Connect! ' + test})
 
+# authentication route
+@app.route('/api/v1/login', methods=['POST'])
+def auth():
+    # get id and password from user 
+    data = json.loads(request.data)
+    id = data.get('id',None)
+    enterprise_id = data.get('enterprise_id')
+    password = data.get('password')
+
+    # check if user exists in selected enterprise
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM employees WHERE employee_id = '%s' AND enterprise_id= '%s'" % (id, enterprise_id))
+    rows = cur.fetchone()
+
+    if rows is None:
+        return jsonify({
+            'success': False, 
+            'message': 'User does not exist in selected enterprise.'
+            })
+    
+    # login_user(id, password)
+    return jsonify({
+        'success': True, 
+        'message': 'User logged in success.'
+        })
+
+@app.route('/api/v1/customers/<string:nic>/check', methods=['GET'])
+def get_customer(nic):
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM customers WHERE nic = '%s'" % nic)
+    rows = cur.fetchone()
+    if rows is None:
+        return jsonify({
+            'success': False, 
+            'message': 'Customer does not have an MCB Account.'
+        })
+    return jsonify({'success': True, 'data': rows})
+
+@app.route('/api/v1/requests/<string:employee_id>', methods=['GET'])
+def get_requests(): 
+    
 
 # search customer by nic
 @app.route('/api/v1/customers/<string:nic>')
 def get_api(nic):
     nic = request.view_args['nic']
     mcb_customer_id = None
-    conn = get_db()
+    conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM customers WHERE customer_id = %s", (nic,))
     row = cur.fetchone()
@@ -59,13 +94,6 @@ def get_api(nic):
 
     # Get user transactions
     user_dict['Transaction'] = get_customer_transactions(user_dict['Account']['AccountNumber'])
-
-    # resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
-    # user_dict['Account'] = resp2.json()[0]
-
-    # resp3 = requests.get(os.environ.get('MCB_API_URL') + 'accounts/' + user_dict['Account']['AccountNumber'] + '/transactions', headers=headers)
-    # user_dict['Transaction'] = resp3.json()
-
     return jsonify(user_dict)
 
 # post endpoint
@@ -73,6 +101,5 @@ def get_api(nic):
 def post_api():
     req_data = request.get_json()
     return jsonify(req_data)
-
 
 app.run()
