@@ -67,9 +67,38 @@ def get_customer(nic):
         })
     return jsonify({'success': True, 'data': rows})
 
+
 @app.route('/api/v1/requests/<string:employee_id>', methods=['GET'])
-def get_requests(): 
-    pass
+def get_requests(employee_id): 
+
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM requests WHERE employee_id = '%s'" % employee_id)
+    rows = cur.fetchall()
+
+    if rows == [] or rows is None:
+        return jsonify({
+            'success': False, 
+            'message': 'No requests found.'
+        })
+    
+    results = []
+
+    for item in rows:
+        result = dict()
+        cur.execute("SELECT * FROM customers WHERE customer_id = '%s'" % item[1])
+        customer_row = cur.fetchone()
+        if customer_row is None:
+            return
+        user_info = get_customer_info(customer_row[1])
+        print(user_info)
+        result['Nic'] = item[1]
+        result['Name'] = user_info['Customer']['FirstName'] + " " + user_info['Customer']['LastName']
+        result['dateRequested'] = item[2]
+        result['status'] = item[3]
+        results.append(result)
+    
+    return jsonify({'success': True, 'data': results})
     
 
 # search customer by nic
