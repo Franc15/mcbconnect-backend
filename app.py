@@ -11,7 +11,7 @@ load_dotenv()
 app = Flask(__name__)
 
 def get_db():
-    conn = psycopg2.connect(host="localhost", database="mcbconnect-db", user="postgres", password="franc123")
+    conn = psycopg2.connect(host="localhost", database="mcbconnect-db", user="postgres", password="dhosiohoes")
     return conn
 
 @app.route('/api/v1')
@@ -29,7 +29,7 @@ def get_customers():
 @app.route('/api/v1/<test>')
 def get_test(test):
     test = request.view_args['test']
-    request = requests.get('http://localhost:5000/api/v1/customers', )
+    request = requests.get('https://0c2b-102-117-164-62.in.ngrok.io/api/v1/customers', )
     print(request.json())
     return jsonify({'message': 'Hello world from MCB Connect! ' + test})
 

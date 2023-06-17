@@ -16,3 +16,5 @@ six
 urllib3
 Werkzeug
 zipp
+python-dotenv
+psycopg2-binary
