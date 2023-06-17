@@ -59,13 +59,6 @@ def get_api(nic):
 
     # Get user transactions
     user_dict['Transaction'] = get_customer_transactions(user_dict['Account']['AccountNumber'])
-
-    # resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
-    # user_dict['Account'] = resp2.json()[0]
-
-    # resp3 = requests.get(os.environ.get('MCB_API_URL') + 'accounts/' + user_dict['Account']['AccountNumber'] + '/transactions', headers=headers)
-    # user_dict['Transaction'] = resp3.json()
-
     return jsonify(user_dict)
 
 # post endpoint
@@ -73,6 +66,5 @@ def get_api(nic):
 def post_api():
     req_data = request.get_json()
     return jsonify(req_data)
-
 
 app.run()
