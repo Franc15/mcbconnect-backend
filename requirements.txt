@@ -10,3 +10,4 @@ MarkupSafe
 six
 Werkzeug
 zipp
+gunicorn
