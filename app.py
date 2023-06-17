@@ -56,7 +56,7 @@ def auth():
 def get_customer(nic):
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM customers WHERE nic = '%s'" % nic)
+    cur.execute("SELECT * FROM customers WHERE customer_id = '%s'" % nic)
     rows = cur.fetchone()
     if rows is None:
         return jsonify({
@@ -65,8 +65,8 @@ def get_customer(nic):
         })
     return jsonify({'success': True, 'data': rows})
 
-@app.route('/api/v1/requests/<string:employee_id>', methods=['GET'])
-def get_requests(): 
+# @app.route('/api/v1/requests/<string:employee_id>', methods=['GET'])
+# def get_requests(): 
     
 
 # search customer by nic
