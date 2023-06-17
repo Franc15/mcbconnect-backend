@@ -4,7 +4,7 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 import requests
-from api.service import get_customer_info, get_customer_transactions, get
+from api.service import get_customer_info, get_customer_transactions, get_customer_account
 
 load_dotenv()
 
@@ -55,10 +55,10 @@ def get_api(nic):
     user_dict['Customer'] = resp['Customer']
 
     # Get user account
-    user_dict['Account'] = get_customer_transactions(mcb_customer_id)
+    user_dict['Account'] = get_customer_account(mcb_customer_id)
 
     # Get user transactions
-    user_dict['Transaction'] = get_customer_transactions(mcb_customer_id)
+    user_dict['Transaction'] = get_customer_transactions(user_dict['Account']['AccountNumber'])
 
     # resp2 = requests.get(os.environ.get('MCB_API_URL') + 'customers/' + user_dict['Customer']['CustomerId'] + '/accounts', headers=headers)
     # user_dict['Account'] = resp2.json()[0]
