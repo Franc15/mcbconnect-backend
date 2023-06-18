@@ -128,6 +128,19 @@ def get_api(nic):
     user_dict['Transaction'] = get_customer_transactions(user_dict['Account']['AccountNumber'])
     return jsonify(user_dict)
 
+#Approve a customer
+@app.route('/api/v1/customers/<string:nic>/updateStatus', methods=['PUT'])
+def approve_customer(nic, update_type):
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE customers SET status = '%s' WHERE customer_id = %s", (update_type, nic,))
+    row = cur.fetchone()
+
+    return jsonify({
+        'success': True,
+        'data': row
+    })
+
 # post endpoint
 @app.route('/api/v1', methods=['POST'])
 def post_api():
